@@ -1,0 +1,13 @@
+# 构建产物（可再生，别入库）
+build/
+build-*/
+vcpkg_installed/
+
+# 环境快照：含本机路径与环境变量（其中还有 MCP 令牌），绝不入库
+_vsdev_env.txt
+
+# 归档包（58MB 的清理备份，已在 _archive/ 里另存）
+docs/*.zip
+
+# 端到端测试的临时数据目录
+_e2e_data/

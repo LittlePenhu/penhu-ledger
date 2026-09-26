@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=PenHu Ledger
+Name[zh_CN]=喷壶记账
+GenericName=Expense Tracker
+GenericName[zh_CN]=花销记账与统计
+Comment=Local-first expense tracker with full-database encryption and optional AI reports
+Comment[zh_CN]=本地优先的记账应用：整库加密，可选 AI 生成报告
+Exec=penhu-native
+Icon=penhu-ledger
+Terminal=false
+Categories=Office;Finance;
+Keywords=ledger;expense;finance;money;budget;记账;花销;账单;
+StartupNotify=true
+# 与窗口的 app_id 对应（Wayland 下合成器靠它把窗口和 .desktop 关联起来，
+# 决定任务栏图标和窗口分组；写错的话任务栏会显示成一个通用图标）。
+StartupWMClass=penhu-native

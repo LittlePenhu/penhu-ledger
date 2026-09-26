@@ -1,0 +1,79 @@
+# Maintainer: 喷壶
+# 构建：makepkg -si        （在 packaging/arch/ 目录里）
+# 需要先把源码 tarball 放到本目录：bash ../make_tarball.sh
+#
+# 为什么 source 用本地 tarball 而不是 git+https：这个项目目前不是 git 仓库。
+# 将来上了 AUR/仓库之后，把 source 换成
+#   source=("$pkgname-$pkgver.tar.gz::$url/archive/v$pkgver.tar.gz")
+# 并把 sha256sums 换成真实校验和（updpkgsums 可以算）。
+pkgname=penhu-ledger
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="本地优先的记账与花销统计：整库加密，可选 AI 生成报告"
+arch=('x86_64' 'aarch64')
+url="https://github.com/USER/penhu-ledger"
+# 许可证待作者确认；定下来后改成 MIT / GPL-3.0-or-later 等 SPDX 标识
+license=('custom')
+depends=(
+    # 存储与加密
+    'sqlcipher' 'libsodium' 'openssl'
+    # HTTP 客户端（云端 LLM）
+    'cpp-httplib'
+    # 窗口与输入
+    'wayland' 'libxkbcommon'
+    # 绘制与文本
+    'cairo' 'pango' 'fontconfig' 'freetype2' 'harfbuzz'
+    # 图片解码（支付截图）
+    'libpng' 'libjpeg-turbo'
+    # 兜底：调系统打开链接/目录
+    'xdg-utils'
+    # 可选运行时（缺了不会崩，但「选图片/选目录/Ctrl+V」不可用）
+    # zenity
+    # wl-clipboard
+)
+makedepends=('cmake' 'ninja' 'pkgconf' 'base-devel' 'wayland-protocols')
+optdepends=(
+    'noto-fonts-cjk: 中文字体（界面字体链的兜底，强烈建议）'
+    'ttf-harmonyos-sans: 界面首选字体（可选）'
+)
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('SKIP')   # 本地 tarball；上 AUR 前用 updpkgsums 生成真实值
+
+build() {
+    cd "$srcdir/$pkgname-$pkgver"
+    cmake -S . -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DPENHU_BUILD_NATIVE=ON \
+        -DPENHU_BUILD_CLI=ON \
+        -DPENHU_BUILD_TESTS=ON \
+        -DPENHU_BUILD_SERVER=ON \
+    cmake --build build
+}
+
+check() {
+    cd "$srcdir/$pkgname-$pkgver"
+    # 纯逻辑单测：金额 / 日期 / 统计 / 异常判定。
+    # 零三方依赖，秒级跑完 —— 打包时顺手验证一遍业务逻辑没被编坏。
+    ./build/bin/penhu-tests-portable
+}
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    DESTDIR="$pkgdir" cmake --install build
+
+    # 文档（cmake --install 只装程序与桌面文件）
+    install -Dm644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 ARCHITECTURE.md "$pkgdir/usr/share/doc/$pkgname/ARCHITECTURE.md"
+    if [[ -f LICENSE ]]; then
+        install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    fi
+}
+
+post_install() {
+    # pacman 的钩子通常会做，但显式跑一次更保险（尤其是手动 pacman -U 安装时）
+    gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
+    update-desktop-database -q /usr/share/applications 2>/dev/null || true
+}
+
+post_upgrade() { post_install; }

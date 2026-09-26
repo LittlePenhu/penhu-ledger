@@ -1,0 +1,9 @@
+// PenHu Ledger resources.
+//
+// 1 ICON  : app / taskbar / Alt-Tab icon (multi-size PNG-in-ICO, 16..256)
+// 2 RCDATA: title bar logo (same artwork as the icon, PNG, decoded by WIC)
+//
+// IDs are referenced from shell.cpp via MAKEINTRESOURCEW(1) / MAKEINTRESOURCEW(2).
+
+1 ICON "app.ico"
+2 RCDATA "app_logo.png"

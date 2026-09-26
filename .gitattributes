@@ -1,0 +1,7 @@
+# 脚本必须是 LF：CRLF 的 .sh 在 Linux 下会报 "\r: command not found"
+*.sh   text eol=lf
+*.py   text eol=lf
+*.bat  text eol=crlf
+*.md   text
+*.cpp  text
+*.hpp  text
